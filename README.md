@@ -5,6 +5,34 @@ An AI-powered chat interface for Liferay DXP content. Ships as two Client Extens
 - **`cmschat-global-site-initializer`** — Fragment that embeds the chat widget into Liferay pages and brokers calls to the microservice over OAuth2.
 - **`cmschat-microservice`** — Spring Boot service that queries the Liferay Search API, extracts content from search results, and uses OpenAI to generate contextual responses with hyperlinked references back to the source content.
 
+## Building & Deploying
+
+Each Client Extension is built and deployed independently with the Liferay Workspace and `lcp` CLI:
+
+```bash
+cd cmschat-microservice
+blade gw clean build && lcp deploy --extension dist/*.zip
+
+cd ../cmschat-global-site-initializer
+blade gw clean build && lcp deploy --extension dist/*.zip
+```
+
+Select the target Liferay PaaS environment when prompted. After the microservice's first deployment, it can take 5–30 minutes for Liferay PaaS to publish the DNS entry and provision an SSL certificate.
+
+## Required Feature Flags
+
+Enable the following feature flags on the Liferay DXP instance:
+
+- `LPS-122920` — Semantic Search
+- `LPS-179669` — Search Headless API
+- `LPD-11232` — Search Headless GET API
+
+Some of these may be classified as Developer feature flags. If they don't appear in the UI, add `feature.flag.ui.visible[dev]=true` to `portal-ext.properties` and restart Liferay.
+
+## Creating a Search Blueprint
+
+The fragment's `blueprintERC` configuration field references a Semantic Search Blueprint that must exist on the Liferay instance. Follow the Liferay docs to create one: [Creating a Search Blueprint for Semantic Search](https://learn.liferay.com/w/dxp/search/liferay-enterprise-search/semantic-search/creating-a-search-blueprint-for-semantic-search). Note the ERC after the blueprint is created — that's the value to set on the fragment.
+
 ## Site Initializer Fragment
 
 The `cmschat-global-site-initializer` Client Extension provisions a `CMS Chat` fragment under the company scope. Drop it onto any page to embed the chat widget:
@@ -126,3 +154,7 @@ cmschat.search.mappings[11].text-field=articleBody
 ```
 
 The Display Page URL is resolved automatically from the Liferay APIs — no URL configuration needed for content rendered by Liferay's standard Display Page infrastructure.
+
+## License
+
+[GNU Lesser General Public License, Version 2.1](LICENSE)
