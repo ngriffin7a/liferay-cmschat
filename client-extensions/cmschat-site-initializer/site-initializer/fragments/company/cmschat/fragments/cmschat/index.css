@@ -1,25 +1,41 @@
+/* Color Scheme — author-selectable via fragment configuration. Applied to both
+   the .cmschat wrapper and the .cmschat-summary-modal (siblings, not nested). */
+.cmschat.color-scheme-primary,
+.cmschat-summary-modal.color-scheme-primary {
+  --cmschat-color-brand: var(--color-brand-primary);
+  --cmschat-color-brand-lighten-2: var(--color-brand-primary-lighten-2);
+  --cmschat-color-brand-lighten-6: var(--color-brand-primary-lighten-6);
+}
+
+.cmschat.color-scheme-secondary,
+.cmschat-summary-modal.color-scheme-secondary {
+  --cmschat-color-brand: var(--color-brand-secondary);
+  --cmschat-color-brand-lighten-2: var(--color-brand-secondary-lighten-2);
+  --cmschat-color-brand-lighten-6: var(--color-brand-secondary-lighten-6);
+}
+
 /* AI Chat Container */
-.ai-chat {
+.cmschat {
   position: fixed;
   bottom: 24px;
   z-index: 9999;
 }
 
-.ai-chat.position-right {
+.cmschat.position-right {
   right: 24px;
 }
 
-.ai-chat.position-left {
+.cmschat.position-left {
   left: 24px;
 }
 
 /* Chat Toggle Button */
-.chat-toggle-btn {
+.cmschat .chat-toggle-btn {
   width: 60px;
   height: 60px;
   border-radius: 50%;
   border: none;
-  background-color: var(--color-brand-primary-lighten-2);
+  background-color: var(--cmschat-color-brand-lighten-2);
   color: var(--color-neutral-0);
   cursor: pointer;
   display: flex;
@@ -31,42 +47,42 @@
   z-index: 10000;
 }
 
-.chat-toggle-btn:hover {
+.cmschat .chat-toggle-btn:hover {
   transform: scale(1.05);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
-.chat-toggle-btn:active {
+.cmschat .chat-toggle-btn:active {
   transform: scale(0.95);
 }
 
-.chat-icon {
+.cmschat .chat-icon {
   position: absolute;
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-.chat-open-icon {
+.cmschat .chat-open-icon {
   opacity: 1;
   transform: rotate(0deg);
 }
 
-.chat-close-icon {
+.cmschat .chat-close-icon {
   opacity: 0;
   transform: rotate(90deg);
 }
 
-.chat-toggle-btn.active .chat-open-icon {
+.cmschat .chat-toggle-btn.active .chat-open-icon {
   opacity: 0;
   transform: rotate(-90deg);
 }
 
-.chat-toggle-btn.active .chat-close-icon {
+.cmschat .chat-toggle-btn.active .chat-close-icon {
   opacity: 1;
   transform: rotate(0deg);
 }
 
 /* Chat Window */
-.chat-window {
+.cmschat .chat-window {
   position: absolute;
   bottom: 80px;
   background: var(--color-neutral-0);
@@ -81,23 +97,23 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.position-right .chat-window {
+.cmschat.position-right .chat-window {
   right: 0;
 }
 
-.position-left .chat-window {
+.cmschat.position-left .chat-window {
   left: 0;
 }
 
-.chat-window.chat-open {
+.cmschat .chat-window.chat-open {
   opacity: 1;
   transform: translateY(0) scale(1);
   pointer-events: auto;
 }
 
 /* Chat Header */
-.chat-header {
-  background-color: var(--color-brand-primary);
+.cmschat .chat-header {
+  background-color: var(--cmschat-color-brand);
   color: var(--color-neutral-0);
   padding: 16px 20px;
   display: flex;
@@ -106,14 +122,14 @@
   flex-shrink: 0;
 }
 
-.chat-header-content {
+.cmschat .chat-header-content {
   display: flex;
   align-items: center;
   gap: 12px;
   flex: 1;
 }
 
-.chat-header-icon {
+.cmschat .chat-header-icon {
   width: 40px;
   height: 40px;
   background: rgba(255, 255, 255, 0.2);
@@ -124,26 +140,26 @@
   flex-shrink: 0;
 }
 
-.chat-header-text {
+.cmschat .chat-header-text {
   flex: 1;
   min-width: 0;
 }
 
-.chat-title {
+.cmschat .chat-title {
   margin: 0;
   font-size: 16px;
   font-weight: 600;
   line-height: 1.2;
 }
 
-.chat-subtitle {
+.cmschat .chat-subtitle {
   margin: 4px 0 0 0;
   font-size: 13px;
   opacity: 0.9;
   line-height: 1.2;
 }
 
-.chat-minimize-btn {
+.cmschat .chat-minimize-btn {
   background: transparent;
   border: none;
   color: var(--color-neutral-0);
@@ -157,27 +173,27 @@
   flex-shrink: 0;
 }
 
-.chat-minimize-btn:hover {
+.cmschat .chat-minimize-btn:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* Chat Body */
-.chat-body {
+.cmschat .chat-body {
   flex: 1;
   overflow-y: auto;
-  background: var(--color-brand-primary-lighten-6);
+  background: var(--cmschat-color-brand-lighten-6);
   position: relative;
   min-height: 0;
 }
 
-.chat-dropzone-wrapper {
+.cmschat .chat-dropzone-wrapper {
   height: 100%;
   padding: 5px 10px;
   position: relative;
 }
 
 /* Chat Footer */
-.chat-footer {
+.cmschat .chat-footer {
   padding: 12px 20px;
   background: var(--color-neutral-0);
   border-top: 1px solid var(--color-neutral-1);
@@ -185,40 +201,40 @@
   flex-shrink: 0;
 }
 
-.footer-text {
+.cmschat .footer-text {
   margin: 0;
   font-size: 12px;
   color: var(--color-neutral-4);
 }
 
 /* Scrollbar Styling */
-.chat-body::-webkit-scrollbar {
+.cmschat .chat-body::-webkit-scrollbar {
   width: 6px;
 }
 
-.chat-body::-webkit-scrollbar-track {
+.cmschat .chat-body::-webkit-scrollbar-track {
   background: var(--color-neutral-1);
 }
 
-.chat-body::-webkit-scrollbar-thumb {
+.cmschat .chat-body::-webkit-scrollbar-thumb {
   background: var(--color-neutral-3);
   border-radius: 3px;
 }
 
-.chat-body::-webkit-scrollbar-thumb:hover {
+.cmschat .chat-body::-webkit-scrollbar-thumb:hover {
   background: var(--color-neutral-4);
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .ai-chat.position-right,
-  .ai-chat.position-left {
+  .cmschat.position-right,
+  .cmschat.position-left {
     right: 12px;
     left: 12px;
     bottom: 12px;
   }
 
-  .chat-window {
+  .cmschat .chat-window {
     width: calc(100vw - 24px) !important;
     max-width: 400px;
     height: 500px !important;
@@ -226,39 +242,39 @@
     bottom: 70px;
   }
 
-  .position-right .chat-window {
+  .cmschat.position-right .chat-window {
     right: 0;
   }
 
-  .position-left .chat-window {
+  .cmschat.position-left .chat-window {
     left: 0;
   }
 
-  .chat-toggle-btn {
+  .cmschat .chat-toggle-btn {
     width: 56px;
     height: 56px;
   }
 }
 
 @media (max-width: 480px) {
-  .chat-window {
+  .cmschat .chat-window {
     width: calc(100vw - 24px) !important;
     height: calc(100vh - 120px) !important;
   }
 
-  .chat-header {
+  .cmschat .chat-header {
     padding: 14px 16px;
   }
 
-  .chat-title {
+  .cmschat .chat-title {
     font-size: 15px;
   }
 
-  .chat-subtitle {
+  .cmschat .chat-subtitle {
     font-size: 12px;
   }
 
-  .chat-footer {
+  .cmschat .chat-footer {
     padding: 10px 16px;
   }
 }
@@ -273,7 +289,7 @@
   }
 }
 
-.chat-toggle-btn.has-notification::after {
+.cmschat .chat-toggle-btn.has-notification::after {
   content: '';
   position: absolute;
   top: 8px;
@@ -298,12 +314,12 @@
 
 .cmschat .chat-bubble.user,
 .cmschat-summary-body .chat-bubble.user {
-    background-color: var(--color-brand-primary-lighten-2);
+    background-color: var(--cmschat-color-brand-lighten-2);
     color: var(--color-neutral-0);
     align-self: flex-end;
 }
 
-.ai-chat .cmschat .chat-bubble.user {
+.cmschat-panel .chat-bubble.user {
     color: var(--color-neutral-0);
     font-weight: bold;
 }
@@ -371,7 +387,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 16px 20px;
-    background: var(--color-brand-primary);
+    background: var(--cmschat-color-brand);
     color: var(--color-neutral-0);
 }
 

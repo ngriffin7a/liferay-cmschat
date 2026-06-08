@@ -17,6 +17,19 @@
           }
         },
         {
+          "name": "colorScheme",
+          "label": "Color Scheme",
+          "type": "select",
+          "dataType": "string",
+          "defaultValue": "primary",
+          "typeOptions": {
+            "validValues": [
+              {"value": "primary", "label": "Primary"},
+              {"value": "secondary", "label": "Secondary"}
+            ]
+          }
+        },
+        {
           "name": "chatWindowWidth",
           "label": "Chat Window Width (px)",
           "type": "text",
