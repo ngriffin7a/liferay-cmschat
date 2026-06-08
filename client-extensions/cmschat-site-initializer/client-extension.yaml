@@ -1,0 +1,8 @@
+assemble:
+    - from: site-initializer
+      into: site-initializer
+
+cmschat-site-initializer:
+    description: Liferay CMS Chat — Site Initializer for fragments in global scope.
+    name: Liferay CMS Chat
+    type: siteInitializer

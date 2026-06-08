@@ -1,0 +1,77 @@
+{
+  "fieldSets": [
+    {
+      "label": "AI Chat Settings",
+      "fields": [
+        {
+          "name": "position",
+          "label": "Position",
+          "type": "select",
+          "dataType": "string",
+          "defaultValue": "bottom-right",
+          "typeOptions": {
+            "validValues": [
+              {"value": "bottom-right", "label": "Bottom Right"},
+              {"value": "bottom-left", "label": "Bottom Left"}
+            ]
+          }
+        },
+        {
+          "name": "chatWindowWidth",
+          "label": "Chat Window Width (px)",
+          "type": "text",
+          "dataType": "string",
+          "defaultValue": "400"
+        },
+        {
+          "name": "chatWindowHeight",
+          "label": "Chat Window Height (px)",
+          "type": "text",
+          "dataType": "string",
+          "defaultValue": "600"
+        },
+        {
+          "name": "openByDefault",
+          "label": "Open Chat by Default",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "dataType": "string",
+          "defaultValue": "liferay-cmschatmicroservice-oauth-application-user-agent",
+          "label": "User Agent ERC",
+          "name": "userAgentERC",
+          "type": "text"
+        },
+        {
+          "dataType": "string",
+          "defaultValue": "",
+          "label": "Blueprint ERC",
+          "name": "blueprintERC",
+          "type": "text"
+        },
+        {
+          "dataType": "string",
+          "defaultValue": "https",
+          "label": "protocol",
+          "name": "protocol",
+          "type": "text"
+        },
+        {
+          "dataType": "string",
+          "defaultValue": "localhost",
+          "label": "host-name",
+          "name": "hostname",
+          "type": "text"
+        },
+        {
+          "dataType": "string",
+          "defaultValue": "443",
+          "label": "port",
+          "name": "port",
+          "type": "text"
+        }
+      ]
+    }
+  ]
+}

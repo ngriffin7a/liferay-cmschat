@@ -1,0 +1,320 @@
+<div class="ai-chat [#if configuration.position == 'bottom-left']position-left[#else]position-right[/#if]">
+
+<script>
+(function() {
+    // Wait for the element to exist before wiring up events.
+    // Using DOMContentLoaded (or immediate execution if DOM is already ready)
+    // so we don't depend on Liferay's fragmentElement injection mechanism.
+    function initToggle() {
+        // Scope to THIS fragment instance by finding the enclosing .ai-chat wrapper.
+        const scripts = document.currentScript
+            ? [document.currentScript]
+            : document.querySelectorAll('script');
+        const root = document.querySelector('.ai-chat');
+
+        if (!root) return;
+
+        const toggleBtn  = root.querySelector('.chat-toggle-btn');
+        const minimizeBtn = root.querySelector('.chat-minimize-btn');
+        const chatWindow = root.querySelector('.chat-window');
+
+        if (!toggleBtn || !chatWindow) return;
+
+        function openChat() {
+            chatWindow.classList.add('chat-open');
+            toggleBtn.classList.add('active');
+            try { localStorage.setItem('swe-chat-state', 'open'); } catch(e) {}
+        }
+
+        function closeChat() {
+            chatWindow.classList.remove('chat-open');
+            toggleBtn.classList.remove('active');
+            try { localStorage.setItem('swe-chat-state', 'closed'); } catch(e) {}
+        }
+
+        function toggleChat() {
+            chatWindow.classList.contains('chat-open') ? closeChat() : openChat();
+        }
+
+        toggleBtn.addEventListener('click', toggleChat);
+
+        if (minimizeBtn) {
+            minimizeBtn.addEventListener('click', closeChat);
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && chatWindow.classList.contains('chat-open')) closeChat();
+        });
+
+        // Restore saved state
+        try {
+            if (localStorage.getItem('swe-chat-state') === 'open') openChat();
+        } catch(e) {}
+
+        // Public API
+        window.SWEChatWidget = {
+            open: openChat,
+            close: closeChat,
+            toggle: toggleChat,
+            isOpen: function() { return chatWindow.classList.contains('chat-open'); }
+        };
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initToggle);
+    } else {
+        initToggle();
+    }
+})();
+</script>
+  <!-- Chat Toggle Button -->
+  <button class="chat-toggle-btn" aria-label="Toggle chat">
+    <svg class="chat-icon chat-open-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+    </svg>
+    <svg class="chat-icon chat-close-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+  </button>
+
+  <!-- Chat Window -->
+  <div class="chat-window [#if configuration.openByDefault]chat-open[/#if]" style="width: ${configuration.chatWindowWidth}px; height: ${configuration.chatWindowHeight}px;">
+    <!-- Chat Header -->
+    <div class="chat-header">
+      <div class="chat-header-content">
+        <div class="chat-header-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="5"></circle>
+            <path d="M20 21a8 8 0 1 0-16 0"></path>
+          </svg>
+        </div>
+        <div class="chat-header-text">
+          <h3 class="chat-title" data-lfr-editable-id="chat-title" data-lfr-editable-type="text">CMS Chat</h3>
+          <p class="chat-subtitle" data-lfr-editable-id="chat-subtitle" data-lfr-editable-type="text">Always here to help</p>
+        </div>
+      </div>
+      <button class="chat-minimize-btn" aria-label="Minimize chat">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Chat Body -->
+    <div class="chat-body">
+      <div class="chat-dropzone-wrapper" style="display: flex; flex-direction: column; height: 100%;">
+        <div class="cmschat" style="display: flex; flex-direction: column; height: 100%;">
+            <img class="busy-icon-template" src="[resources:liferay-icon-white-boxes.png]" style="display:none;">
+            <div class="cmschat-messages"
+                style="display: flex; flex-direction: column; flex: 1; overflow-y: auto; padding: 10px;">
+                <!-- Chat messages will appear here -->
+            </div>
+            <form class="cmschat-form" style="margin-top: auto; padding: 10px; border-top: 1px solid #eee;">
+                <div class="mb-3">
+                    <input type="text" class="cmschat-input form-control" placeholder="Type a message..." autocomplete="off" style="width: 100%; box-sizing: border-box; padding: 8px;">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 8px; cursor: pointer;">Send</button>
+            </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Footer -->
+    <div class="chat-footer">
+      <p class="footer-text" data-lfr-editable-id="footer-text" data-lfr-editable-type="text">Powered by AI</p>
+    </div>
+  </div>
+</div>
+
+<!-- Summary Modal (hidden, shown by cms-summarize event) -->
+<div class="cmschat-summary-modal" style="display: none;">
+    <div class="cmschat-summary-backdrop"></div>
+    <div class="cmschat-summary-panel">
+        <div class="cmschat-summary-header">
+            <h4 class="cmschat-summary-title">AI Summary</h4>
+            <button class="cmschat-summary-close btn btn-monospaced btn-xs" type="button" aria-label="Close" title="Close">
+                <svg class="lexicon-icon lexicon-icon-times" role="presentation" viewBox="0 0 512 512" width="16" height="16" fill="currentColor">
+                    <path d="M300.4,256L467,89.4c29.6-29.6-14.8-74.1-44.4-44.4L256,211.6L89.4,45C59.8,15.3,15.3,59.8,45,89.4L211.6,256L45,422.6 c-29.7,29.7,14.7,74.1,44.4,44.4L256,300.4L422.6,467c29.7,29.7,74.1-14.7,44.4-44.4L300.4,256z"></path>
+                </svg>
+            </button>
+        </div>
+        <div class="cmschat-summary-body">
+            <img class="busy-icon-template" src="[resources:liferay-icon-white-boxes.png]" style="display:none;">
+            <div class="cmschat-summary-messages" style="display: flex; flex-direction: column;">
+                <!-- Summary messages will appear here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import * as OAuth2 from '@liferay/oauth2-provider-web/client';
+
+    // ── Shared OAuth2 client ──────────────────────────────────────────
+    const oauth2ClientPromise = OAuth2.FromUserAgentApplication('${configuration.userAgentERC}');
+    const apiUrl = `${configuration.protocol}://${configuration.hostname}:${configuration.port}/cmschat/completions`;
+    const blueprintERC = "${configuration.blueprintERC}";
+
+    // ── Shared helper functions ───────────────────────────────────────
+    function typeWriter(element, text, speed) {
+        let i = 0;
+        function typeEffect() {
+            if (i < text.length) {
+                element.innerHTML = text.slice(0, i + 1);
+                i++;
+                setTimeout(typeEffect, speed);
+            }
+        }
+        typeEffect();
+    }
+
+    function addUserMessage(container, text) {
+        const message = document.createElement('div');
+        message.classList.add('chat-bubble', 'user');
+        message.textContent = text;
+        container.appendChild(message);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function addAssistantMessage(container, text) {
+        const message = document.createElement('div');
+        message.classList.add('chat-bubble', 'assistant');
+        message.innerHTML = '';
+        container.appendChild(message);
+        container.scrollTop = container.scrollHeight;
+        typeWriter(message, text, 0);
+    }
+
+    function addBusyCursor(container) {
+        const message = document.createElement('div');
+        const img = document.createElement('img');
+        img.src = container.parentElement.querySelector('.busy-icon-template').src;
+        img.classList.add("busy-icon");
+        message.classList.add('chat-bubble', 'assistant', 'busy');
+        message.innerHTML = '';
+        message.appendChild(img);
+        container.appendChild(message);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function removeBusyCursor(container) {
+        container.querySelectorAll('.busy').forEach(el => el.remove());
+    }
+
+    // Obtain the current site's numeric group ID from Liferay.ThemeDisplay.
+    // getScopeGroupId() is a stable Liferay JS API that works regardless of whether
+    // the site URL uses the /web/{siteKey} prefix or a virtual host, making it
+    // robust against future Liferay URL structure changes.
+    // The Spring Boot service maps this numeric ID to the site's friendlyUrlPath
+    // via its site cache, which is already keyed by both name and numeric ID.
+    const siteKey = (typeof Liferay !== 'undefined' && Liferay.ThemeDisplay)
+        ? String(Liferay.ThemeDisplay.getScopeGroupId())
+        : '';
+
+    function sendRequest(container, messages, roles) {
+        addBusyCursor(container);
+
+        oauth2ClientPromise.then((oauth2Client) => {
+            oauth2Client
+                .fetch(apiUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        messages: messages,
+                        roles: roles,
+                        blueprintExternalReferenceCode: blueprintERC,
+                        siteKey: siteKey
+                    }),
+                })
+                .then((response) => {
+                    if (response.ok) return response.json();
+                    throw new Error("Network response was not ok");
+                })
+                .then((data) => {
+                    removeBusyCursor(container);
+                    if (data.assistant) {
+                        addAssistantMessage(container, data.assistant);
+                    }
+                })
+                .catch((error) => {
+                    console.error("CMS Chat fetch error:", error);
+                    removeBusyCursor(container);
+                });
+        }).catch((error) => {
+            console.error("CMS Chat OAuth2 client error:", error);
+            removeBusyCursor(container);
+        });
+    }
+
+    // ── Chatbot Panel ─────────────────────────────────────────────────
+    const chatMessages = document.querySelector('.cmschat-messages');
+    const chatForm = document.querySelector('.cmschat-form');
+    const chatInput = document.querySelector('.cmschat-input');
+
+    chatForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        if (chatInput.value.trim() !== '' && !chatMessages.querySelector('.busy')) {
+            const text = chatInput.value;
+            addUserMessage(chatMessages, text);
+            chatInput.value = '';
+
+            // Build full conversation history for multi-turn
+            const children = Array.from(chatMessages.children).filter(c => !c.classList.contains('busy'));
+            const messages = children.map(c => c.textContent);
+            const roles = children.map(c => c.classList.contains('assistant') ? 'assistant' : 'user');
+
+            sendRequest(chatMessages, messages, roles);
+        }
+    });
+
+    // ── Summary Modal ─────────────────────────────────────────────────
+    const summaryModal = document.querySelector('.cmschat-summary-modal');
+    const summaryBackdrop = summaryModal.querySelector('.cmschat-summary-backdrop');
+    const summaryClose = summaryModal.querySelector('.cmschat-summary-close');
+    const summaryTitle = summaryModal.querySelector('.cmschat-summary-title');
+    const summaryMessages = summaryModal.querySelector('.cmschat-summary-messages');
+
+    function showSummaryModal(title) {
+        summaryMessages.innerHTML = '';
+        summaryTitle.textContent = title || 'AI Summary';
+        summaryModal.style.display = 'block';
+    }
+
+    function hideSummaryModal() {
+        summaryModal.style.display = 'none';
+        summaryMessages.innerHTML = '';
+    }
+
+    summaryClose.addEventListener('click', hideSummaryModal);
+    summaryBackdrop.addEventListener('click', hideSummaryModal);
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && summaryModal.style.display !== 'none') {
+            hideSummaryModal();
+        }
+    });
+
+    // Listen for custom event from search results [Preview] links
+    document.addEventListener('cms-summarize', function(e) {
+        if (summaryMessages.querySelector('.busy')) return;
+        const assetType = e.detail.assetType || 'content';
+        const assetTitle = e.detail.assetTitle || 'Unknown';
+        showSummaryModal(assetTitle);
+        const instruction = "Summarize the " + assetType + " titled " + assetTitle;
+        addUserMessage(summaryMessages, instruction);
+        sendRequest(summaryMessages, [instruction], ['user']);
+    });
+
+    // Backward compatibility: route through the event so both paths share the same
+    // entry point and the .busy guard above prevents a double request.
+    const params = new URLSearchParams(window.location.search);
+    const assetType = params.get('assetType');
+    const assetTitle = params.get('assetTitle');
+
+    if (assetType && assetTitle) {
+        document.dispatchEvent(new CustomEvent('cms-summarize', {
+            detail: { assetType: assetType, assetTitle: assetTitle }
+        }));
+    }
+</script>
