@@ -221,7 +221,15 @@ public class SearchService {
 
 		LiferayClient.DownloadResult result = _liferayClient.download(contentURL, jwt.getTokenValue());
 
-		return new DownloadedDoc(_extractText(result, maxChars), contentURL);
+		String extractedText = _extractText(result, maxChars);
+
+		log.debug(
+			"Downloaded {} bytes, content-type={}, extracted {} chars",
+			result.body() != null ? result.body().length : 0,
+			result.contentType(),
+			extractedText != null ? extractedText.length() : 0);
+
+		return new DownloadedDoc(extractedText, contentURL);
 	}
 
 	private String _extractText(LiferayClient.DownloadResult result, int maxChars) throws IOException {

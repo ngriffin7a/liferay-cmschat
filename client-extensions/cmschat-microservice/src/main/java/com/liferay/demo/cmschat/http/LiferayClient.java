@@ -60,8 +60,13 @@ public class LiferayClient {
 	}
 
 	public DownloadResult download(String absoluteUrl, String token) throws IOException {
-		HttpRequest request = _buildRequest(absoluteUrl, token);
+		HttpRequest request = _buildRequest(absoluteUrl, "Bearer " + token);
 		HttpResponse<byte[]> response = _send(request, HttpResponse.BodyHandlers.ofByteArray());
+
+		if (response.statusCode() >= 400) {
+			throw new IOException("HTTP " + response.statusCode() + ": " + new String(response.body(), StandardCharsets.UTF_8));
+		}
+
 		String contentType = response.headers().firstValue("Content-Type").orElse("");
 
 		return new DownloadResult(response.body(), contentType);
