@@ -384,11 +384,6 @@ public class SearchService {
 
 		if (!hrefJsonNode.isMissingNode()) {
 			String href = hrefJsonNode.asText();
-			int downloadIndex = href.indexOf("download=true");
-
-			if (downloadIndex != -1) {
-				href = href.substring(0, downloadIndex + "download=true".length());
-			}
 
 			DownloadedDoc doc = _downloadDocument(
 				jwt, _relative2AbsoluteURL(itemURL, href), remainingChars);
