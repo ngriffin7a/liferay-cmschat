@@ -2,12 +2,12 @@
 
 An AI-powered chat interface for Liferay DXP content. Ships as two Client Extensions:
 
-- **`cmschat-site-initializer`** — Fragment that embeds the chat widget into Liferay pages and brokers calls to the microservice over OAuth2.
+- **`cmschat-global-site-initializer`** — Fragment that embeds the chat widget into Liferay pages and brokers calls to the microservice over OAuth2.
 - **`cmschat-microservice`** — Spring Boot service that queries the Liferay Search API, extracts content from search results, and uses OpenAI to generate contextual responses with hyperlinked references back to the source content.
 
 ## Site Initializer Fragment
 
-The `cmschat-site-initializer` Client Extension provisions a `CMS Chat` fragment under the company scope. Drop it onto any page to embed the chat widget:
+The `cmschat-global-site-initializer` Client Extension provisions a `CMS Chat` fragment under the company scope. Drop it onto any page to embed the chat widget:
 
 <img src="screenshots/cmschat-fragment.png" alt="CMS Chat fragment in action" width="33%">
 
@@ -31,7 +31,7 @@ The fragment also listens for a `cms-summarize` custom event (and an equivalent 
 
 For the fragment to obtain a JWT and call the microservice on behalf of unauthenticated visitors, the `Guest` role must be granted `VIEW` and `CREATE_TOKEN` permissions on the OAuth user-agent application that the site initializer provisions.
 
-In **Control Panel → OAuth 2 Administration**, locate the `Liferay CMS Chat Site Initializer OAuth Application Headless Server` entry, open its action menu, and choose **Permissions**:
+In **Control Panel → OAuth 2 Administration**, locate the `Liferay CMS Chat Global Site Initializer OAuth Application Headless Server` entry, open its action menu, and choose **Permissions**:
 
 ![OAuth 2 Administration — Permissions menu](screenshots/oauth2-admin-permissions.png)
 
