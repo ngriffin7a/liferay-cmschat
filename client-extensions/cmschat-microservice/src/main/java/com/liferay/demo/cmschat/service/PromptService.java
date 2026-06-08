@@ -9,11 +9,11 @@ import org.springframework.stereotype.Service;
 import com.liferay.demo.cmschat.dto.ChatRequest;
 import com.liferay.demo.cmschat.dto.SearchResult;
 
-import com.openai.models.ChatCompletionAssistantMessageParam;
-import com.openai.models.ChatCompletionCreateParams;
-import com.openai.models.ChatCompletionMessageParam;
-import com.openai.models.ChatCompletionSystemMessageParam;
-import com.openai.models.ChatCompletionUserMessageParam;
+import com.openai.models.chat.completions.ChatCompletionAssistantMessageParam;
+import com.openai.models.chat.completions.ChatCompletionCreateParams;
+import com.openai.models.chat.completions.ChatCompletionMessageParam;
+import com.openai.models.chat.completions.ChatCompletionSystemMessageParam;
+import com.openai.models.chat.completions.ChatCompletionUserMessageParam;
 
 /**
  * @author Neil Griffin
@@ -45,10 +45,9 @@ public class PromptService {
 	public ChatCompletionCreateParams buildParams(ChatRequest chatRequest, List<SearchResult> searchResults) {
 		ChatCompletionCreateParams.Builder builder = ChatCompletionCreateParams.builder();
 
-		builder.addMessage(ChatCompletionMessageParam.ofChatCompletionSystemMessageParam(
+		builder.addMessage(ChatCompletionMessageParam.ofSystem(
 			ChatCompletionSystemMessageParam.builder()
-				.role(ChatCompletionSystemMessageParam.Role.SYSTEM)
-				.content(ChatCompletionSystemMessageParam.Content.ofTextContent(_systemPrompt))
+				.content(_systemPrompt)
 				.build()));
 
 		List<String> messages = chatRequest.getMessages();
@@ -58,10 +57,9 @@ public class PromptService {
 			String message = messages.get(i);
 
 			if ("assistant".equals(roles.get(i))) {
-				builder.addMessage(ChatCompletionMessageParam.ofChatCompletionAssistantMessageParam(
+				builder.addMessage(ChatCompletionMessageParam.ofAssistant(
 					ChatCompletionAssistantMessageParam.builder()
-						.role(ChatCompletionAssistantMessageParam.Role.ASSISTANT)
-						.content(ChatCompletionAssistantMessageParam.Content.ofTextContent(message))
+						.content(message)
 						.build()));
 			}
 			else {
@@ -107,10 +105,9 @@ public class PromptService {
 	}
 
 	private ChatCompletionMessageParam _userMessage(String text) {
-		return ChatCompletionMessageParam.ofChatCompletionUserMessageParam(
+		return ChatCompletionMessageParam.ofUser(
 			ChatCompletionUserMessageParam.builder()
-				.role(ChatCompletionUserMessageParam.Role.USER)
-				.content(ChatCompletionUserMessageParam.Content.ofTextContent(text))
+				.content(text)
 				.build());
 	}
 }
