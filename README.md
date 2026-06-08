@@ -5,11 +5,13 @@ An AI-powered chat interface for Liferay DXP content. Ships as two Client Extens
 - **`cmschat-site-initializer`** — Fragment that embeds the chat widget into Liferay pages and brokers calls to the microservice over OAuth2.
 - **`cmschat-microservice`** — Spring Boot service that queries the Liferay Search API, extracts content from search results, and uses OpenAI to generate contextual responses with hyperlinked references back to the source content.
 
-![CMS Chat fragment in action](screenshots/cmschat-fragment.png)
-
 ## Site Initializer Fragment
 
-The `cmschat-site-initializer` Client Extension provisions a `CMS Chat` fragment under the company scope. Drop it onto any page to embed the chat widget; per-instance configuration is exposed through the Liferay fragment configuration UI:
+The `cmschat-site-initializer` Client Extension provisions a `CMS Chat` fragment under the company scope. Drop it onto any page to embed the chat widget:
+
+<img src="screenshots/cmschat-fragment.png" alt="CMS Chat fragment in action" width="33%">
+
+Per-instance configuration is exposed through the Liferay fragment configuration UI:
 
 | Field | Default | Purpose |
 |---|---|---|
