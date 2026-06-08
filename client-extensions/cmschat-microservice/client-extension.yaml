@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+assemble:
+    -   fromTask: bootJar
+liferay-cmschatmicroservice-oauth-application-user-agent:
+    .serviceAddress: localhost:58081
+    .serviceScheme: http
+    name: CMS Chat OAuth Application User Agent
+    scopes:
+        -   Liferay.Headless.Admin.Site.everything
+        -   Liferay.Headless.Asset.Library.everything
+        -   Liferay.Object.Admin.REST.everything
+        -   Liferay.Portal.Search.REST.everything
+        -   Liferay.Search.Experiences.REST.everything
+    type: oAuthApplicationUserAgent
