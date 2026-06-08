@@ -14,6 +14,13 @@
   --cmschat-color-brand-lighten-6: var(--color-brand-secondary-lighten-6);
 }
 
+/* Style Book override: btn-secondary doesn't pick up the brand secondary color
+   automatically, so force it here. */
+.cmschat.color-scheme-secondary .btn-secondary {
+  background-color: var(--color-brand-secondary);
+  color: var(--color-neutral-0);
+}
+
 /* AI Chat Container */
 .cmschat {
   position: fixed;
