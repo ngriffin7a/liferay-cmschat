@@ -5,6 +5,8 @@ An AI-powered chat interface for Liferay DXP content. Ships as two Client Extens
 - **`cmschat-site-initializer`** — Fragment that embeds the chat widget into Liferay pages and brokers calls to the microservice over OAuth2.
 - **`cmschat-microservice`** — Spring Boot service that queries the Liferay Search API, extracts content from search results, and uses OpenAI to generate contextual responses with hyperlinked references back to the source content.
 
+![CMS Chat fragment in action](screenshots/cmschat-fragment.png)
+
 ## Site Initializer Fragment
 
 The `cmschat-site-initializer` Client Extension provisions a `CMS Chat` fragment under the company scope. Drop it onto any page to embed the chat widget; per-instance configuration is exposed through the Liferay fragment configuration UI:
@@ -22,6 +24,16 @@ The `cmschat-site-initializer` Client Extension provisions a `CMS Chat` fragment
 On submit, the fragment obtains an OAuth2 token via `@liferay/oauth2-provider-web/client`, then POSTs `{messages, roles, blueprintExternalReferenceCode, siteKey}` to `${protocol}://${hostname}:${port}/cmschat/completions`. The `siteKey` is the current site's numeric group ID, taken from `Liferay.ThemeDisplay.getScopeGroupId()` and used by `DisplayPageUrlService` to resolve Display Page URLs for Asset Library content.
 
 The fragment also listens for a `cms-summarize` custom event (and an equivalent `?assetType=…&assetTitle=…` query string) that opens a modal and asks the microservice to summarize a specific asset — this is the path that triggers `SearchService`'s summarize mode.
+
+### Grant Guest Access to the OAuth Application
+
+For the fragment to obtain a JWT and call the microservice on behalf of unauthenticated visitors, the `Guest` role must be granted `VIEW` and `CREATE_TOKEN` permissions on the OAuth user-agent application that the site initializer provisions.
+
+In **Control Panel → OAuth 2 Administration**, locate the `Liferay CMS Chat Site Initializer OAuth Application Headless Server` entry, open its action menu, and choose **Permissions**:
+
+![OAuth 2 Administration — Permissions menu](screenshots/oauth2-admin-permissions.png)
+
+On the permissions screen, check `VIEW` and `CREATE_TOKEN` for the `Guest` role and save. Without these permissions, requests from anonymous users will fail to mint a token and the chat widget will not be able to reach the microservice.
 
 ## Microservice
 
