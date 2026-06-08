@@ -6,8 +6,8 @@ cmschat-site-initializer:
     description: Liferay CMS Chat — Site Initializer for fragments in global scope.
     name: Liferay CMS Chat
     oAuthApplicationHeadlessServer: cmschat-site-initializer-oauth-application-headless-server
-    siteExternalReferenceCode: L_GUEST
-    siteName: Guest
+    siteExternalReferenceCode: L_GLOBAL
+    siteName: Global
     type: siteInitializer
 
 cmschat-site-initializer-oauth-application-headless-server:
