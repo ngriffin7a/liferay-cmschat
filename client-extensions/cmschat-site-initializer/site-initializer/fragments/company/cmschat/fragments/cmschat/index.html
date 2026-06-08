@@ -1,4 +1,20 @@
-<div class="ai-chat [#if configuration.position == 'bottom-left']position-left[#else]position-right[/#if]">
+<div class="ai-chat [#if configuration.position == 'bottom-left']position-left[#else]position-right[/#if]"
+     data-user-agent-erc="${configuration.userAgentERC!"liferay-cmschatmicroservice-oauth-application-user-agent"}"
+     data-bypass-same-origin="${((configuration.bypassSameOrigin!false)?string == 'true')?string('true', 'false')}">
+
+<script>
+// Create the apiFetch Promise synchronously so the module script below can
+// resolve it regardless of when it loads.
+(function () {
+    var panel = document.querySelector('.ai-chat');
+
+    if (panel && !panel._apiFetchPromise) {
+        panel._apiFetchPromise = new Promise(function (resolve) {
+            panel._apiFetchResolve = resolve;
+        });
+    }
+})();
+</script>
 
 <script>
 (function() {
@@ -151,10 +167,62 @@
 <script type="module">
     import * as OAuth2 from '@liferay/oauth2-provider-web/client';
 
-    // ── Shared OAuth2 client ──────────────────────────────────────────
-    const oauth2ClientPromise = OAuth2.FromUserAgentApplication('${configuration.userAgentERC}');
+    const panel = document.querySelector('.ai-chat');
+    const userAgentERC = (panel && panel.dataset.userAgentErc) ||
+        'liferay-cmschatmicroservice-oauth-application-user-agent';
+    const bypassSameOrigin = panel && panel.dataset.bypassSameOrigin === 'true';
+
     const apiUrl = `${configuration.protocol}://${configuration.hostname}:${configuration.port}/cmschat/completions`;
     const blueprintERC = "${configuration.blueprintERC}";
+
+    // ── apiFetch builder ──────────────────────────────────────────────
+    // Mirrors the strategy used by liferay-coveo:
+    //   - bypassSameOrigin = false → use OAuth2Client.fetch directly (production).
+    //   - bypassSameOrigin = true  → pull the access token via _getOrRequestToken
+    //     and route through Liferay.Util.fetch, sidestepping the same-origin
+    //     check the OAuth2Client's own fetch imposes (useful for localhost dev).
+    OAuth2.FromUserAgentApplication(userAgentERC)
+        .then(function (client) {
+            const apiFetch = function (url, options) {
+                if (bypassSameOrigin) {
+                    return client._getOrRequestToken().then(function (tokenData) {
+                        const token = tokenData && tokenData.access_token
+                            ? tokenData.access_token
+                            : null;
+
+                        options = options || {};
+                        options.headers = options.headers || {};
+
+                        if (token) {
+                            options.headers['Authorization'] = 'Bearer ' + token;
+                        }
+
+                        return Liferay.Util.fetch(url, options);
+                    });
+                }
+
+                return client.fetch(url, options).catch(function (fetchErr) {
+                    const msg = "Cross-origin request blocked by Liferay OAuth2Client fetch. " +
+                        "To fix this, enable 'Bypass Same-Origin Restriction' in the fragment configuration.";
+                    console.error(msg, fetchErr);
+                    throw new Error(msg);
+                });
+            };
+
+            if (panel && panel._apiFetchResolve) {
+                panel._apiFetchResolve(apiFetch);
+            }
+        })
+        .catch(function (err) {
+            console.warn(
+                'CMS Chat: OAuth2 client unavailable.',
+                err
+            );
+
+            if (panel && panel._apiFetchResolve) {
+                panel._apiFetchResolve(null);
+            }
+        });
 
     // ── Shared helper functions ───────────────────────────────────────
     function typeWriter(element, text, speed) {
@@ -215,18 +283,29 @@
     function sendRequest(container, messages, roles) {
         addBusyCursor(container);
 
-        oauth2ClientPromise.then((oauth2Client) => {
-            oauth2Client
-                .fetch(apiUrl, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        messages: messages,
-                        roles: roles,
-                        blueprintExternalReferenceCode: blueprintERC,
-                        siteKey: siteKey
-                    }),
-                })
+        if (!panel || !panel._apiFetchPromise) {
+            console.error("CMS Chat: apiFetch promise unavailable.");
+            removeBusyCursor(container);
+            return;
+        }
+
+        panel._apiFetchPromise.then((apiFetch) => {
+            if (!apiFetch) {
+                console.error("CMS Chat: OAuth2 client unavailable; cannot send request.");
+                removeBusyCursor(container);
+                return;
+            }
+
+            apiFetch(apiUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    messages: messages,
+                    roles: roles,
+                    blueprintExternalReferenceCode: blueprintERC,
+                    siteKey: siteKey
+                }),
+            })
                 .then((response) => {
                     if (response.ok) return response.json();
                     throw new Error("Network response was not ok");
@@ -241,9 +320,6 @@
                     console.error("CMS Chat fetch error:", error);
                     removeBusyCursor(container);
                 });
-        }).catch((error) => {
-            console.error("CMS Chat OAuth2 client error:", error);
-            removeBusyCursor(container);
         });
     }
 

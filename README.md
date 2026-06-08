@@ -15,6 +15,7 @@ The `cmschat-site-initializer` Client Extension provisions a `CMS Chat` fragment
 | `chatWindowWidth` / `chatWindowHeight` | `400` / `600` | Chat window dimensions in pixels. |
 | `openByDefault` | `false` | Whether the chat window starts expanded. |
 | `userAgentERC` | `liferay-cmschatmicroservice-oauth-application-user-agent` | OAuth user-agent application ERC used to mint JWTs for the microservice. |
+| `bypassSameOrigin` | `false` | Enable when the microservice runs on a different origin from the Liferay portal (any localhost-different-port dev setup, or a multi-host PaaS deployment). When enabled, the fragment extracts the OAuth2 access token via `_getOrRequestToken()` and routes the request through `Liferay.Util.fetch` instead of `OAuth2Client.fetch`, which otherwise refuses cross-origin requests at the JavaScript layer. Requires the microservice's `CORS_ALLOWED_ORIGIN_PATTERNS` to permit the portal's origin. |
 | `blueprintERC` | *(empty)* | Search Blueprint ERC passed to the microservice on each request. |
 | `protocol` / `hostname` / `port` | `https` / `localhost` / `443` | Where the fragment reaches the microservice — set these to the deployed microservice address. |
 
@@ -32,6 +33,7 @@ The fragment also listens for a `cms-summarize` custom event (and an equivalent 
 | `LIFERAY_ADMIN_EMAIL` | No | `test@liferay.com` | Admin email used to pre-warm Display Page URL caches at startup via basic auth. Optional — see note below. |
 | `LIFERAY_ADMIN_PASSWORD` | No | `test` | Password for the admin user above. |
 | `OPENAI_API_KEY` | **Yes** | `sk-PLACEHOLDER` | OpenAI API key for chat completions. Must be a valid key for the service to function. |
+| `CORS_ALLOWED_ORIGIN_PATTERNS` | No | `*` | Comma-separated list of origin patterns the microservice will accept cross-origin requests from. Defaults to `*` (any origin) for local dev. Scope to a specific origin in production — e.g. `https://*.lfr.cloud` for an LCP deployment, or `https://portal.example.com` for a single-host setup. Required whenever the fragment's `bypassSameOrigin` is enabled. |
 
 #### Example
 
@@ -40,6 +42,7 @@ export LIFERAY_BASE_URL=https://webserver-myproject-prd.lfr.cloud
 export LIFERAY_ADMIN_EMAIL=test@liferay.com
 export LIFERAY_ADMIN_PASSWORD=test
 export OPENAI_API_KEY=sk-proj-abc123...
+export CORS_ALLOWED_ORIGIN_PATTERNS=https://*.lfr.cloud
 ```
 
 #### How They're Used
@@ -58,6 +61,11 @@ LIFERAY_ADMIN_EMAIL / LIFERAY_ADMIN_PASSWORD
 
 OPENAI_API_KEY
 └── openai.key                                → API key for OpenAI chat completions
+
+CORS_ALLOWED_ORIGIN_PATTERNS
+└── cors.allowed.origin.patterns              → consumed by CorsConfig to set
+                                                allowed origin patterns for
+                                                fragment cross-origin requests
 ```
 
 > **Note on the admin credentials:** They are a **startup optimization, not a hard requirement**. `DisplayPageUrlService` uses them to pre-load its site, asset-library, and object-definition caches at boot via basic auth. If the credentials are absent, wrong, or the startup load fails for any other reason, each loader is retried on demand using the first incoming request's JWT — which has the required scopes by way of the OAuth user-agent application. The service still works without them; the only cost is that the first user request pays the cache-warming overhead.

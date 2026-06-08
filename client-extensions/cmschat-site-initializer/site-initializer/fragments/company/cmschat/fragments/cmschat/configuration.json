@@ -44,6 +44,12 @@
           "type": "text"
         },
         {
+          "defaultValue": false,
+          "label": "Bypass Same-Origin Restriction",
+          "name": "bypassSameOrigin",
+          "type": "checkbox"
+        },
+        {
           "dataType": "string",
           "defaultValue": "",
           "label": "Blueprint ERC",
