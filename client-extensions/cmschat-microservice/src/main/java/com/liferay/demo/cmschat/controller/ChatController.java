@@ -30,8 +30,8 @@ import com.liferay.demo.cmschat.service.PromptService;
 import com.liferay.demo.cmschat.service.SearchService;
 
 import com.openai.client.OpenAIClient;
-import com.openai.models.ChatCompletion;
-import com.openai.models.ChatCompletionCreateParams;
+import com.openai.models.chat.completions.ChatCompletion;
+import com.openai.models.chat.completions.ChatCompletionCreateParams;
 
 /**
  * @author Neil Griffin
