@@ -183,6 +183,15 @@
     //     check the OAuth2Client's own fetch imposes (useful for localhost dev).
     OAuth2.FromUserAgentApplication(userAgentERC)
         .then(function (client) {
+            // Both branches resolve to the PARSED JSON body (or throw on
+            // error), so callers never have to inspect a Response.
+            //
+            //   • bypassSameOrigin → Liferay.Util.fetch returns a raw Response,
+            //     so we check .ok and call .json() ourselves.
+            //   • client.fetch (OAuth2Client) ALREADY unwraps the body: on a
+            //     2xx JSON response it returns response.json(); on a non-2xx it
+            //     rejects with the Response. So we must NOT call .ok/.json()
+            //     again — doing so would produce "request failed (undefined)".
             const apiFetch = function (url, options) {
                 if (bypassSameOrigin) {
                     return client._getOrRequestToken().then(function (tokenData) {
@@ -197,11 +206,21 @@
                             options.headers['Authorization'] = 'Bearer ' + token;
                         }
 
-                        return Liferay.Util.fetch(url, options);
+                        return Liferay.Util.fetch(url, options).then(function (r) {
+                            if (!r.ok) {
+                                throw new Error('CMS Chat: request failed (' + r.status + ')');
+                            }
+                            return r.json();
+                        });
                     });
                 }
 
                 return client.fetch(url, options).catch(function (fetchErr) {
+                    // OAuth2Client.fetch rejects with the Response on HTTP error,
+                    // or throws an Error on the same-origin guard / network failure.
+                    if (fetchErr && typeof fetchErr.status === 'number') {
+                        throw new Error('CMS Chat: request failed (' + fetchErr.status + ')');
+                    }
                     const msg = "Cross-origin request blocked by Liferay OAuth2Client fetch. " +
                         "To fix this, enable 'Bypass Same-Origin Restriction' in the fragment configuration.";
                     console.error(msg, fetchErr);
@@ -306,10 +325,6 @@
                     siteKey: siteKey
                 }),
             })
-                .then((response) => {
-                    if (response.ok) return response.json();
-                    throw new Error("Network response was not ok");
-                })
                 .then((data) => {
                     removeBusyCursor(container);
                     if (data.assistant) {
