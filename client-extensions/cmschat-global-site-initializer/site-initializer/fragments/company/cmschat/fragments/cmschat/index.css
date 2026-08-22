@@ -1,24 +1,30 @@
 /* Color Scheme — author-selectable via fragment configuration. Applied to both
-   the .cmschat wrapper and the .cmschat-summary-modal (siblings, not nested). */
+   the .cmschat wrapper and the .cmschat-summary-modal (siblings, not nested).
+
+   Migrated off the Dialect theme token names (--color-brand-*, --color-neutral-*,
+   --color-state-error), which are not defined outside a Dialect-based theme and
+   collapse backgrounds to `transparent`. These now reference the Clay / Bootstrap
+   tokens published by the style book, each with a hard literal fallback so the
+   chat renders correctly even when no style book is applied. */
 .cmschat.color-scheme-primary,
 .cmschat-summary-modal.color-scheme-primary {
-  --cmschat-color-brand: var(--color-brand-primary);
-  --cmschat-color-brand-lighten-2: var(--color-brand-primary-lighten-2);
-  --cmschat-color-brand-lighten-6: var(--color-brand-primary-lighten-6);
+  --cmschat-color-brand: var(--primary, #027223);
+  --cmschat-color-brand-lighten-2: var(--primary-l0, #3f9458);
+  --cmschat-color-brand-lighten-6: var(--green-l5, #f2f8f4);
 }
 
 .cmschat.color-scheme-secondary,
 .cmschat-summary-modal.color-scheme-secondary {
-  --cmschat-color-brand: var(--color-brand-secondary);
-  --cmschat-color-brand-lighten-2: var(--color-brand-secondary-lighten-2);
-  --cmschat-color-brand-lighten-6: var(--color-brand-secondary-lighten-6);
+  --cmschat-color-brand: var(--secondary, #54565a);
+  --cmschat-color-brand-lighten-2: var(--secondary-l0, #7d7f82);
+  --cmschat-color-brand-lighten-6: var(--gray-100, #f8f8f8);
 }
 
 /* Style Book override: btn-secondary doesn't pick up the brand secondary color
    automatically, so force it here. */
 .cmschat.color-scheme-secondary .btn-secondary {
-  background-color: var(--color-brand-secondary);
-  color: var(--color-neutral-0);
+  background-color: var(--secondary, #54565a);
+  color: var(--white, #ffffff);
 }
 
 /* AI Chat Container */
@@ -42,8 +48,8 @@
   height: 60px;
   border-radius: 50%;
   border: none;
-  background-color: var(--cmschat-color-brand-lighten-2);
-  color: var(--color-neutral-0);
+  background-color: var(--cmschat-color-brand);
+  color: var(--white, #ffffff);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -68,6 +74,14 @@
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
+/* The open glyph carries Clay's .lexicon-icon class, which forces width/height to
+   1em and shrinks it. Restore an AI Hub-sized glyph by overriding with a fixed
+   size (specificity here beats the single-class .lexicon-icon rule). */
+.cmschat .chat-toggle-btn .chat-open-icon {
+  width: 24px;
+  height: 24px;
+}
+
 .cmschat .chat-open-icon {
   opacity: 1;
   transform: rotate(0deg);
@@ -88,11 +102,86 @@
   transform: rotate(0deg);
 }
 
+/* Greeting Bubble — dismissable nudge above the toggle (mirrors AI Hub). */
+.cmschat .chat-greeting {
+  position: absolute;
+  bottom: 80px;
+  max-width: 240px;
+  background: var(--white, #ffffff);
+  color: var(--gray-900, #2b2d30);
+  border-radius: 16px;
+  padding: 16px 40px 16px 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.3;
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.cmschat.position-right .chat-greeting {
+  right: 0;
+}
+
+.cmschat.position-left .chat-greeting {
+  left: 0;
+}
+
+.cmschat .chat-greeting.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Downward tail pointing toward the toggle button. */
+.cmschat .chat-greeting::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid var(--white, #ffffff);
+}
+
+.cmschat.position-right .chat-greeting::after {
+  right: 20px;
+}
+
+.cmschat.position-left .chat-greeting::after {
+  left: 20px;
+}
+
+.cmschat .chat-greeting-text {
+  margin: 0;
+}
+
+.cmschat .chat-greeting-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: transparent;
+  border: none;
+  color: var(--gray-600, #86888c);
+  cursor: pointer;
+  padding: 4px;
+  line-height: 0;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.cmschat .chat-greeting-close:hover {
+  background: var(--gray-100, #f8f8f8);
+}
+
 /* Chat Window */
 .cmschat .chat-window {
   position: absolute;
   bottom: 80px;
-  background: var(--color-neutral-0);
+  background: var(--white, #ffffff);
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
   overflow: hidden;
@@ -121,7 +210,7 @@
 /* Chat Header */
 .cmschat .chat-header {
   background-color: var(--cmschat-color-brand);
-  color: var(--color-neutral-0);
+  color: var(--white, #ffffff);
   padding: 16px 20px;
   display: flex;
   align-items: center;
@@ -159,17 +248,10 @@
   line-height: 1.2;
 }
 
-.cmschat .chat-subtitle {
-  margin: 4px 0 0 0;
-  font-size: 13px;
-  opacity: 0.9;
-  line-height: 1.2;
-}
-
 .cmschat .chat-minimize-btn {
   background: transparent;
   border: none;
-  color: var(--color-neutral-0);
+  color: var(--white, #ffffff);
   cursor: pointer;
   padding: 4px;
   display: flex;
@@ -199,11 +281,68 @@
   position: relative;
 }
 
+/* Header wand glyph — sized to fill the 40px header-icon circle. */
+.cmschat .chat-header-svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* Chat Input Form — pill input + circular arrow send button (mirrors AI Hub). */
+.cmschat .cmschat-form {
+  margin-top: auto;
+  padding: 12px;
+  border-top: 1px solid var(--gray-100, #f8f8f8);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cmschat .cmschat-input {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 10px 18px;
+  border: 1px solid var(--gray-300, #e7e7ed);
+  border-radius: 999px;
+}
+
+.cmschat .cmschat-input:focus {
+  border-color: var(--cmschat-color-brand);
+  box-shadow: 0 0 0 2px var(--cmschat-color-brand-lighten-6);
+  outline: none;
+}
+
+.cmschat .cmschat-send {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background-color: var(--cmschat-color-brand);
+  color: var(--white, #ffffff);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.cmschat .cmschat-send:hover:not(:disabled) {
+  background-color: var(--cmschat-color-brand);
+  filter: brightness(1.1);
+}
+
+.cmschat .cmschat-send:disabled {
+  background-color: var(--cmschat-color-brand);
+  opacity: 0.55;
+  cursor: default;
+}
+
 /* Chat Footer */
 .cmschat .chat-footer {
   padding: 12px 20px;
-  background: var(--color-neutral-0);
-  border-top: 1px solid var(--color-neutral-1);
+  background: var(--white, #ffffff);
+  border-top: 1px solid var(--gray-100, #f8f8f8);
   text-align: center;
   flex-shrink: 0;
 }
@@ -211,7 +350,7 @@
 .cmschat .footer-text {
   margin: 0;
   font-size: 12px;
-  color: var(--color-neutral-4);
+  color: var(--gray-600, #86888c);
 }
 
 /* Scrollbar Styling */
@@ -220,16 +359,16 @@
 }
 
 .cmschat .chat-body::-webkit-scrollbar-track {
-  background: var(--color-neutral-1);
+  background: var(--gray-100, #f8f8f8);
 }
 
 .cmschat .chat-body::-webkit-scrollbar-thumb {
-  background: var(--color-neutral-3);
+  background: var(--gray-400, #d1d1d1);
   border-radius: 3px;
 }
 
 .cmschat .chat-body::-webkit-scrollbar-thumb:hover {
-  background: var(--color-neutral-4);
+  background: var(--gray-600, #86888c);
 }
 
 /* Responsive Design */
@@ -277,10 +416,6 @@
     font-size: 15px;
   }
 
-  .cmschat .chat-subtitle {
-    font-size: 12px;
-  }
-
   .cmschat .chat-footer {
     padding: 10px 16px;
   }
@@ -303,10 +438,43 @@
   right: 8px;
   width: 12px;
   height: 12px;
-  background-color: var(--color-state-error);
+  background-color: var(--danger, #b23a2f);
   border-radius: 50%;
-  border: 2px solid var(--color-neutral-0);
+  border: 2px solid var(--white, #ffffff);
   animation: pulse 2s infinite;
+}
+
+/* ── Intro empty-state (mirrors AI Hub) ── */
+.cmschat .cmschat-empty-state {
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 24px 16px;
+}
+
+.cmschat .cmschat-empty-state.hidden {
+    display: none;
+}
+
+.cmschat .cmschat-empty-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--cmschat-color-brand);
+    color: var(--white, #ffffff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.cmschat .cmschat-empty-greeting {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--gray-800, #393a4a);
 }
 
 /* ── Shared chat bubble styles (used by both chatbot and summary) ── */
@@ -315,26 +483,26 @@
     padding: 10px;
     margin: 5px 0;
     border-radius: 10px;
-    background-color: var(--color-neutral-1);
+    background-color: var(--gray-100, #f8f8f8);
     max-width: fit-content;
 }
 
 .cmschat .chat-bubble.user,
 .cmschat-summary-body .chat-bubble.user {
-    background-color: var(--cmschat-color-brand-lighten-2);
-    color: var(--color-neutral-0);
+    background-color: var(--cmschat-color-brand);
+    color: var(--white, #ffffff);
     align-self: flex-end;
 }
 
 .cmschat-panel .chat-bubble.user {
-    color: var(--color-neutral-0);
+    color: var(--white, #ffffff);
     font-weight: bold;
 }
 
 .cmschat .chat-bubble.assistant,
 .cmschat-summary-body .chat-bubble.assistant {
-    background-color: var(--color-neutral-2);
-    color: var(--color-neutral-10);
+    background-color: var(--gray-200, #f2f2f2);
+    color: var(--gray-900, #2b2d30);
     align-self: flex-start;
 }
 
@@ -381,7 +549,7 @@
     width: 480px;
     max-width: 90vw;
     max-height: 80vh;
-    background: var(--color-neutral-0);
+    background: var(--white, #ffffff);
     border-radius: 12px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     display: flex;
@@ -395,7 +563,7 @@
     justify-content: space-between;
     padding: 16px 20px;
     background: var(--cmschat-color-brand);
-    color: var(--color-neutral-0);
+    color: var(--white, #ffffff);
 }
 
 .cmschat-summary-title {
@@ -407,13 +575,13 @@
     white-space: nowrap;
     flex: 1;
     margin-right: 12px;
-    color: var(--color-neutral-0);
+    color: var(--white, #ffffff);
 }
 
 .cmschat-summary-close {
     background: transparent;
     border: none;
-    color: var(--color-neutral-0);
+    color: var(--white, #ffffff);
     cursor: pointer;
 }
 

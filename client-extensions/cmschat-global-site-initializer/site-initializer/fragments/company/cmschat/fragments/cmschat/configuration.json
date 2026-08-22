@@ -50,6 +50,12 @@
           "defaultValue": false
         },
         {
+          "name": "showGreeting",
+          "label": "Show Greeting Bubble",
+          "type": "checkbox",
+          "defaultValue": true
+        },
+        {
           "dataType": "string",
           "defaultValue": "liferay-cmschatmicroservice-oauth-application-user-agent",
           "label": "User Agent ERC",
