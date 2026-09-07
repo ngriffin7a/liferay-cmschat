@@ -1,4 +1,26 @@
-# Liferay CMS Chat
+# Liferay CMS Chat — ARCHIVED
+
+> **This repository is archived and no longer maintained.**
+>
+> Its capabilities have been absorbed into the generic Liferay AI assistant at
+> **[liferay-se/liferay-ai](https://github.com/liferay-se/liferay-ai)**:
+>
+> - The RAG retrieval engine — the `SearchService` (14 content-type strategies
+>   with Apache Tika text extraction), the `DisplayPageUrlService`, and the
+>   citation/prompt discipline — now ships as the **`ai-knowledge-plugin`** jar,
+>   contributing `search_knowledge` + `summarize_content` tools (retrieval as a
+>   tool; an always-on RAG enricher mode remains behind a property for parity
+>   with this project).
+> - A runnable reference deployment — core engine + knowledge plugin + a default
+>   profile + generic `AIChat*` persistence — ships as the
+>   **`ai-assistant-microservice`** client extension.
+> - The chat UI lives as the generic **`ai-chatbot`** / **`ai-workspace`**
+>   fragments in liferay-ai (streaming, projects, sharing).
+>
+> Use liferay-ai for any new work. The content below is retained for historical
+> reference only.
+
+---
 
 An AI-powered chat interface for Liferay DXP content. Ships as two Client Extensions:
 
